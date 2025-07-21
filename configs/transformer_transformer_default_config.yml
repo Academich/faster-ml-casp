@@ -1,0 +1,34 @@
+search:
+  algorithm: aizynthfinder.search.retrostar.search_tree.SearchTree
+  max_transforms: 5
+  iteration_limit: 25000
+  return_first: true
+  time_limit: 15
+  exclude_target_from_stock: true
+  algorithm_config:
+    use_prior: true
+    prune_cycles_in_search: true
+    immediate_instantiation: [transformer]
+
+expansion:
+  transformer:
+    type: aizynthfinder.context.policy.extra_expansion_strategies.ModelZooExpansionStrategy
+    gpu_mode: true
+    data:
+      module_path: /home/mikhail/work/faster_ml_casp/single_step_retro/model/autoregressive
+      kwargs:
+        sampling: beam_search
+        checkpoint_path: /home/mikhail/storage/SMILES-to-SMILES-transformer/checkpoints/single_step_retrosynthesis/ss_transformer_checkpoint.ckpt
+        vocab_path: /home/mikhail/storage/SMILES-to-SMILES-transformer/checkpoints/single_step_retrosynthesis/vocab.json
+        embedding_dim: 256
+        feedforward_dim: 2048
+        num_encoder_layers: 6
+        num_decoder_layers: 6
+        num_heads: 8
+        activation: relu
+        max_size: 200
+        beam_size: 1
+stock:
+  paroutes: /home/mikhail/work/faster_ml_casp/paroutes_stock.hdf5
+  # zinc: /home/mikhail/storage/aizynthfinder/zinc_stock.hdf5
+  # /home/mikhail/work/faster_ml_casp/paroutes_stock.hdf5

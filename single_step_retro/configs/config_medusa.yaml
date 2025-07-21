@@ -1,0 +1,101 @@
+# pytorch_lightning==2.2.1
+seed_everything: 123456
+trainer:
+  accelerator: cpu
+  precision: 32
+  logger:
+  - class_path: pytorch_lightning.loggers.TensorBoardLogger
+    init_args:
+      save_dir: .
+      name: lightning_logs
+      version: null
+      log_graph: false
+      default_hp_metric: true
+      prefix: ''
+      sub_dir: null
+      comment: ''
+      purge_step: null
+      max_queue: 10
+      flush_secs: 120
+      filename_suffix: ''
+  callbacks:
+  - class_path: src.utils.callbacks.PredictionWriter
+    init_args:
+      output_file_path: results/predictions_RtoP.csv
+      write_interval: batch
+  - class_path: pytorch_lightning.callbacks.LearningRateMonitor
+    init_args:
+      logging_interval: step
+      log_momentum: false
+      log_weight_decay: false
+  - class_path: pytorch_lightning.callbacks.ModelCheckpoint
+    init_args:
+      dirpath: /single_step_retro/medusa/Retro/heads20_drpt01_reslayer1_hiddendim50_bsz92_const_lr_karpaty_prcsn32_multipl5_Silu_normalize
+      filename: step={step}-val_l={val/loss:.3f}-val/acc_sequence_head_0={val/acc_sequence_head0:.3f}
+      monitor: val/acc_sequence_head0
+      verbose: false
+      save_last: true
+      save_top_k: 1
+      save_weights_only: false
+      mode: max
+      auto_insert_metric_name: false
+      every_n_train_steps: null
+      train_time_interval: null
+      every_n_epochs: 1
+      save_on_train_epoch_end: false
+      enable_version_counter: false
+  fast_dev_run: false
+  max_epochs: null
+  min_epochs: null
+  max_steps: 2500000
+  min_steps: null
+  max_time: null
+  limit_train_batches: null
+  limit_val_batches: null
+  limit_test_batches: null
+  limit_predict_batches: null
+  overfit_batches: 0.0
+  val_check_interval: 0.9
+  check_val_every_n_epoch: 1
+  num_sanity_val_steps: 2
+  log_every_n_steps: null
+  deterministic: null
+  benchmark: null
+  inference_mode: true
+  use_distributed_sampler: true
+  profiler: null
+  detect_anomaly: false
+  barebones: false
+  plugins: null
+  sync_batchnorm: false
+  reload_dataloaders_every_n_epochs: 0
+  default_root_dir: null
+data:
+  class_path: src.data_handling.Smiles2SmilesInPlaceDM
+  init_args:
+    vocab_path: /single_step_retro/data/USPTO_50K_PtoR_aug20/vocabs/vocab.json
+    data_dir: /single_step_retro/data/USPTO_50K_PtoR_aug20/
+    batch_size: 92
+    num_workers: 4
+    tokens_in_batch: null
+    persistent_workers: false
+    shuffle_train: true
+model:
+  class_path: src.model.autoregressive.SmilesToSmilesAutoregressiveMedusaModel
+  init_args:
+    embedding_dim: 256
+    feedforward_dim: 2048
+    num_encoder_layers: 6
+    num_decoder_layers: 6
+    num_heads: 8
+    dropout_rate: 0.1
+    activation: gelu
+    learning_rate: 0.0003
+    weight_decay: 0.0
+    scheduler: const
+    warmup_steps: 0
+    sampling: greedy
+    beam_size: 1
+    max_size: 200
+    report_prediction_time: true
+    report_prediction_file: null

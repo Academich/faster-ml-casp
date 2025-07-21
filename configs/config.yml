@@ -1,0 +1,11 @@
+expansion:
+  uspto:
+    - /home/mikhail/storage/aizynthfinder/uspto_model.onnx
+    - /home/mikhail/storage/aizynthfinder/uspto_templates.csv.gz
+  ringbreaker:
+    - /home/mikhail/storage/aizynthfinder/uspto_ringbreaker_model.onnx
+    - /home/mikhail/storage/aizynthfinder/uspto_ringbreaker_templates.csv.gz
+filter:
+  uspto: /home/mikhail/storage/aizynthfinder/uspto_filter_model.onnx
+stock:
+  zinc: /home/mikhail/storage/aizynthfinder/zinc_stock.hdf5
