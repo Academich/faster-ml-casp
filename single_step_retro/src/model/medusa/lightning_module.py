@@ -407,197 +407,7 @@ class SmilesToSmilesAutoregressiveMedusaModel(pl.LightningModule):
 
         return [optimizer], [scheduler]
 
-    # def generate(self, src_token_ids: 'torch.LongTensor') -> list['torch.LongTensor']:
-    #     # we don't need the bos token in drafts
-    #     b_size = src_token_ids.shape[0]
-
-    #     n_drafts, draft_len = 1, self.medusa_heads_num
-
-    #     src_pad_mask = (src_token_ids == self.pad_token_idx).bool()
-    #     # -> (b_size, src_len)
-
-    #     memory = self.base_model.encode_src(src_token_ids, src_pad_mask)
-    #     # -> (b_size, src_len, emb_dim)
-    #     _, src_len, emb_dim = memory.size()
-
-    #     iters = -1
-
-    #     generated_tokens = torch.full((b_size, 1), self.bos_token_idx, device=src_token_ids.device)
-    #     #   -> (b_size, 1)
-
-    #     draft_tokens = self(None, generated_tokens, src_memory=memory, memory_pad_mask=src_pad_mask).argmax(
-    #         dim=-1)  # -> (b_size, 1, M)
-    #     self.model_calls_num += 1
-    #     log_probs = torch.full((b_size, 1), 0., device=src_token_ids.device)
-    #     #   -> (b_size, 1)
-
-    #     num_of_empty_columns = ((generated_tokens == self.pad_token_idx).sum(0) == b_size).sum().item()
-    #     #   -> (1,)
-    #     postn_after_the_last_meaning_token = generated_tokens.shape[1] - num_of_empty_columns
-    #     #   -> (1,)
-    #     possible_draft_len = self.max_len - postn_after_the_last_meaning_token - 1
-    #     #   -> (b_size, 1)
-    #     beam_size = 1
-
-    #     logits_base = torch.full((b_size * n_drafts, draft_len + 1, self.vocab_size), 0., device=src_token_ids.device)
-    #     #   -> (b_s * n_drafts, draft_len + 1, vocab_size)
-
-    #     while possible_draft_len >= 1 and postn_after_the_last_meaning_token <= self.max_len:
-    #         iters += 1
-    #         logits_base = logits_base * 0.
-    #         # We use artificial logits to avoid calculation of obvious pad predicting after eos
-    #         logits_base[:, :, self.pad_token_idx] = 35.
-    #         # 35. will give about 100% probability for pad_token after softmax()
-
-    #         bool_idx_of_unfinished = ~((generated_tokens == self.eos_token_idx).sum(-1).bool())
-    #         # -> (n_candidates)
-
-    #         draft_len = min(possible_draft_len, draft_len)
-    #         draft_tokens[:, :, :][draft_tokens[:, :, :] == self.eos_token_idx] = self.C_token_idx  # The drafts can't
-    #         # be started with eos, or it can lead to the repetitive answers
-    #         draft_tokens[:, :, :][draft_tokens[:, :, :] == self.pad_token_idx] = self.C_token_idx
-    #         draft_tokens = draft_tokens[:, :, :draft_len]
-    #         n_candidates, curr_len = generated_tokens.size()
-
-    #         draft_place_len = draft_len + 1 - num_of_empty_columns
-    #         if draft_place_len > 0:
-    #             draft_place = torch.full((n_candidates, draft_place_len), self.pad_token_idx,
-    #                                      device=src_token_ids.device)
-    #             generated_tokens = torch.cat((generated_tokens, draft_place), dim=-1)
-    #         # -> (n_candidates, drafted_len)
-
-    #         logits_base = logits_base[:, :draft_len + 1, :]
-
-    #         pad_place_bool = generated_tokens == self.pad_token_idx
-    #         # -> (n_candidates, drafted_len)
-    #         draft_place_bool = torch.logical_and(pad_place_bool,
-    #                                              pad_place_bool.cumsum(-1) <= draft_len)
-    #         # -> (n_candidates, drafted_len)
-
-    #         draft_place_bool_idx_input = draft_place_bool.unsqueeze(1).repeat(1, n_drafts, 1)
-    #         # -> (b_s * bm_sz, n_drafts, drafted_len)
-    #         generated_tokens_input = generated_tokens.unsqueeze(1).repeat(1, n_drafts, 1)
-    #         # -> (b_s * bm_sz, n_drafts, drafted_len)
-
-    #         generated_tokens_input[draft_place_bool_idx_input] = draft_tokens.reshape(-1)
-    #         draft_place_bool_idx_input = draft_place_bool_idx_input.flatten(end_dim=1)
-    #         # -> (b_s * bm_sz * n_drafts, drafted_len)
-    #         generated_tokens_input = generated_tokens_input.flatten(end_dim=1)
-    #         # # -> (b_s * bm_sz * n_drafts, drafted_len, vocab_size)
-
-    #         bool_idx_of_unfinished = bool_idx_of_unfinished.unsqueeze(-1).repeat(1, n_drafts).flatten(end_dim=1)
-    #         # -> (b_s * bm_sz * n_drafts)
-    #         draft_place_bool_idx_input = draft_place_bool_idx_input[bool_idx_of_unfinished]
-    #         #   -> (num_of_unfinished, drafted_len)
-    #         pred_logits = self(None,
-    #                            generated_tokens_input[bool_idx_of_unfinished],
-    #                            src_memory=memory[bool_idx_of_unfinished],
-    #                            memory_pad_mask=src_pad_mask[bool_idx_of_unfinished])[:, :, 0, :]
-    #         #  -> (num_of_unfinished, drafted_len, vocab_size)
-    #         self.model_calls_num += 1
-    #         vocab_size = pred_logits.shape[-1]
-
-    #         pred_logits = pred_logits[
-    #             torch.logical_or(draft_place_bool_idx_input, torch.roll(draft_place_bool_idx_input, -1, 1))].reshape(
-    #             -1, draft_len + 1, vocab_size)
-    #         #  -> (num_of_unfinishedself.b_sz += b_size, draft_len + 1, vocab_size)
-
-    #         logits_base[bool_idx_of_unfinished] = pred_logits
-    #         pred_logits = logits_base
-    #         #   -> (n_candidates * n_drafts, draft_len + 1, vocab_size)
-
-    #         # Choosing the best draft for each candidate. The draft with the biggest number of
-    #         # approved tokens is the best draft for the given candidate. #########################################
-
-    #         # All unapproved tokens in masked_probs have zero probability
-    #         # We use nucleus=0.9975 and max_num_of_unmasked_positions=beam_size to avoid sampling of low probable sequences
-    #         # and reduce calculation
-    #         masked_probs = mask_with_num_logits_according_nucleus(pred_logits, nucleus=0.9975,
-    #                                                               max_num_of_unmasked_positions=self.beam_size,
-    #                                                               num="-inf").softmax(-1)
-    #         #   -> (n_candidates * n_drafts, draft_len + 1, vocab_size)
-
-    #         masked_probs = masked_probs.reshape(n_candidates, n_drafts, draft_len + 1, vocab_size)
-    #         draft_tokens = draft_tokens.reshape(n_candidates, n_drafts, draft_len)  # each candidate has the same
-    #         # collection of drafts
-
-    #         n_accepted_in_drafts = self.calculate_n_accepted_in_drafts(draft_tokens, masked_probs)
-    #         #   ->(n_candidates, n_drafts)
-
-    #         # Each candidate needs its best draft. Choose the draft with the biggest number of approved tokens
-    #         # for each candidate:
-    #         n_accepted, draft_i = n_accepted_in_drafts.topk(1, dim=-1)
-    #         # (n_candidates, n_drafts) -> (n_candidates, 1)
-
-    #         chosen_drafts = torch.gather(draft_tokens, dim=1,
-    #                                      index=draft_i.unsqueeze(-1).expand(n_candidates, 1, draft_len)).squeeze(1)
-    #         #   -> (n_candidates, draft_len)
-    #         ########################################################################################################
-    #         pred_logits = pred_logits.reshape(n_candidates, n_drafts, draft_len + 1, vocab_size)
-
-    #         # Further we need information only about chosen drafts
-    #         pred_logits = torch.gather(pred_logits, dim=1, index=draft_i.unsqueeze(-1).unsqueeze(-1).
-    #                                    expand(n_candidates, 1, draft_len + 1, vocab_size)).squeeze(1)
-    #         #   -> (n_candidates, draft_len + 1, vocab_size)
-
-    #         # Sample all possible lines within the chosen drafts:
-    #         # new_candidates have the initial tokens and the new ones
-    #         new_candidates, new_log_probs, num_of_new_seqs_for_each_in_batch, accepted_tokens_num = \
-    #             self.sample(generated_tokens, log_probs, pred_logits,
-    #                         chosen_drafts, b_size, draft_place_bool, n_accepted.squeeze(-1))
-
-    #         new_log_probs, top_inds_1d = topk_in_each_group(score_1d=new_log_probs,
-    #                                                         length_of_each_group=num_of_new_seqs_for_each_in_batch,
-    #                                                         k=self.beam_size, pad=-float("inf"))
-    #         new_candidates = new_candidates[top_inds_1d]
-    #         # -> (b_size * beam_size, drafted_len)
-
-    #         accepted_tokens_num = accepted_tokens_num[top_inds_1d]
-    #         # -> (b_size * beam_size,)
-    #         accepted_tokens_num = accepted_tokens_num[accepted_tokens_num >= 0]
-
-    #         self.accepted_tokens_num += accepted_tokens_num.sum().item()
-    #         self.produced_non_pad_tokens += accepted_tokens_num.sum().item() + accepted_tokens_num.shape[0]
-
-    #         if (new_candidates == self.eos_token_idx).sum(-1).bool().sum() == b_size * self.beam_size:
-    #             break
-    #         generated_tokens = new_candidates
-
-    #         inds_for_next_drafts = (generated_tokens != self.pad_token_idx).sum(-1) - 1  # -> (b_s * bm_sz)
-    #         if iters == 0:
-    #             src_pad_mask = src_pad_mask.unsqueeze(1).repeat(1, self.beam_size, 1).flatten(end_dim=1)
-    #             # -> (b_size * n_drafts * bm_sz, src_len)
-    #             memory = memory.unsqueeze(1).repeat(1, self.beam_size, 1, 1).flatten(end_dim=1)
-    #             # -> (b_size * n_drafts * bm_sz, src_len, emb_dim)
-
-    #             logits_base = logits_base.repeat(self.beam_size, 1, 1)
-    #             #   -> (b_s * n_drafts * bm_sz, draft_len + 1, vocab_size)
-    #         draft_tokens = self(None,
-    #                             generated_tokens,
-    #                             memory,
-    #                             memory_pad_mask=src_pad_mask).argmax(-1)
-    #         # -> (b_s * bm_sz, drafted_len, M)
-    #         self.model_calls_num += 1
-    #         draft_tokens = torch.gather(draft_tokens, dim=1,
-    #                                     index=inds_for_next_drafts.unsqueeze(-1).unsqueeze(-1).repeat(1, 1,
-    #                                                                                                   self.medusa_heads_num))
-    #         # -> (b_s * bm_sz, 1, M)
-
-    #         log_probs = new_log_probs.reshape(b_size * self.beam_size, 1)
-    #         # -> (b_size * beam_size, 1)
-
-    #         num_of_empty_columns = torch.min((generated_tokens == self.pad_token_idx).sum(-1)).item()
-    #         #   -> (1,)
-    #         postn_after_the_last_meaning_token = generated_tokens.shape[1] - num_of_empty_columns
-    #         #   -> (1,)
-    #         possible_draft_len = self.max_len - postn_after_the_last_meaning_token - 1
-    #         #   -> (b_size, 1)
-    #     self.classic_model_calls_num += (new_candidates != self.pad_token_idx).sum(-1).max().item() - 1
-
-    #     return new_candidates.reshape(b_size, self.beam_size, -1), log_probs.reshape(b_size, self.beam_size).exp()
-
     def generate(self, src_token_ids: 'torch.LongTensor') -> list['torch.LongTensor']:
-        # we don't need the bos token in drafts
         b_size = src_token_ids.shape[0]
 
         n_drafts, draft_len = 1, self.medusa_heads_num
@@ -645,10 +455,9 @@ class SmilesToSmilesAutoregressiveMedusaModel(pl.LightningModule):
             # be started with eos, otherwise it can lead to the repetitive answers
             draft_tokens_r[:, :, :][draft_tokens_r[:, :, :] == self.pad_token_idx] = self.C_token_idx
             draft_tokens[bool_idx_of_unfinished] = draft_tokens_r[:,:,:draft_tokens.shape[-1]]
-            # if bool_idx_of_unfinished.sum().item()< bool_idx_of_unfinished.shape[0]:
-            #     print("otkladivaem")
+
             draft_tokens = draft_tokens[:, :, :draft_len]
-            # print(f"\n\n\n Draft {iters}", self.tokenizer.decode_batch(draft_tokens.squeeze(1).cpu().numpy()))
+
             n_candidates, curr_len = generated_tokens.size()
 
             draft_place_len = draft_len + 1 - num_of_empty_columns
@@ -680,7 +489,6 @@ class SmilesToSmilesAutoregressiveMedusaModel(pl.LightningModule):
             # -> (b_s * bm_sz * n_drafts)
             draft_place_bool_idx_input = draft_place_bool_idx_input[bool_idx_of_unfinished]
             #   -> (num_of_unfinished, drafted_len)
-            # print(f"\n generated_tokens_input {iters}", self.tokenizer.decode_batch(generated_tokens_input.cpu().numpy()))
             
             pred_logits = self(None,
                                generated_tokens_input[bool_idx_of_unfinished],
@@ -741,19 +549,12 @@ class SmilesToSmilesAutoregressiveMedusaModel(pl.LightningModule):
             new_log_probs, top_inds_1d = topk_in_each_group(score_1d=new_log_probs,
                                                             length_of_each_group=num_of_new_seqs_for_each_in_batch,
                                                             k=self.beam_size, pad=-float("inf"))
-            # print("\nnew_candidates", self.tokenizer.decode_batch(new_candidates.cpu().numpy()))
-            # print("\ndetailed seqs probs", full_log_probs.exp())
             new_candidates = new_candidates[top_inds_1d]
             # -> (b_size * beam_size, drafted_len)
 
             accepted_tokens_num = accepted_tokens_num[top_inds_1d]
             # -> (b_size * beam_size,)
             accepted_tokens_num = accepted_tokens_num[accepted_tokens_num >= 0]
-            # print("\n\ntop new_candidates", self.tokenizer.decode_batch(new_candidates.cpu().numpy()))
-            # print("\ntop new_candidates_inds", new_candidates)
-            # print("\ntop accepted_tokens_num", accepted_tokens_num)
-            # print("\ntop seqs probs", new_log_probs.exp())
-            # print("\ntop detail seqs probs", full_log_probs[top_inds_1d].exp())
 
             self.accepted_tokens_num += accepted_tokens_num.sum().item()
             self.produced_non_pad_tokens += accepted_tokens_num.sum().item() + accepted_tokens_num.shape[0]
@@ -796,7 +597,6 @@ class SmilesToSmilesAutoregressiveMedusaModel(pl.LightningModule):
             possible_draft_len = self.max_len - postn_after_the_last_meaning_token - 1
             #   -> (b_size, 1)
         self.classic_model_calls_num += (new_candidates != self.pad_token_idx).sum(-1).max().item() - 1
-        # print(log_probs.reshape(b_size, self.beam_size, -1).exp())
         return new_candidates.reshape(b_size, self.beam_size, -1), log_probs.reshape(b_size, self.beam_size).exp()
 
     def calculate_n_accepted_in_drafts(self, draft_tokens, masked_probs):
