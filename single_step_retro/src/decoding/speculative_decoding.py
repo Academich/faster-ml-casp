@@ -1486,21 +1486,29 @@ class TranslationInferenceBeamSearchSpeculative:
             ##########################################################################################################
             self.model_input_lines_num += generated_tokens_n.shape[0]
             self.model_calls_num += 1
-            pred_logits_n = self.model.decode_tgt(
-                generated_tokens_n,
-                memory[candidate_idx],
-                memory_pad_mask=src_pad_mask[candidate_idx],
+            bool_idx_of_unfinished= ~(
+                (generated_tokens_n == self.eos_token_idx).sum(-1).bool()
             )
-            #  -> (n, drafted_len, vocab_size)
+            # -> (n)
+            pred_logits_r = self.model.decode_tgt(
+                generated_tokens_n[bool_idx_of_unfinished],
+                memory[candidate_idx][bool_idx_of_unfinished],
+                memory_pad_mask=src_pad_mask[candidate_idx][bool_idx_of_unfinished],
+            )
+            #  -> (num_of_unfinished, drafted_len, vocab_size)
+            pred_logits_n = torch.full((generated_tokens_n.shape[0], draft_len + 1, self.vocab_size), 0., device=memory.device)
+        #   -> (n, draft_len + 1, vocab_size)
+            pred_logits_n[:,:,self.pad_token_idx] = 35.
+
             vocab_size = pred_logits_n.shape[-1]
 
-            pred_logits_n = pred_logits_n[
+            pred_logits_r = pred_logits_r[
                 torch.logical_or(
-                    draft_place_bool_idx_n, torch.roll(draft_place_bool_idx_n, -1, 1)
+                    draft_place_bool_idx_n[bool_idx_of_unfinished], torch.roll(draft_place_bool_idx_n[bool_idx_of_unfinished], -1, 1)
                 )
             ].reshape(-1, draft_len + 1, vocab_size)
-            #  -> (n, draft_len + 1, vocab_size)
-
+            #  -> (num_of_unfinished, draft_len + 1, vocab_size)
+            pred_logits_n[bool_idx_of_unfinished] = pred_logits_r
             masked_probs_n = mask_with_num_logits_according_nucleus(
                 pred_logits_n,
                 nucleus=0.9975,
@@ -1554,7 +1562,7 @@ class TranslationInferenceBeamSearchSpeculative:
 
             accepted_tokens_num = accepted_tokens_num[top_inds_1d]
             # -> (b_size * beam_size,)
-
+            accepted_tokens_num = accepted_tokens_num[accepted_tokens_num >= 0]
             self.accepted_tokens_num += accepted_tokens_num.sum().item()
             self.produced_non_pad_tokens += (
                 accepted_tokens_num.sum().item() + accepted_tokens_num.size(0)
@@ -1579,7 +1587,8 @@ class TranslationInferenceBeamSearchSpeculative:
             possible_draft_len = self.max_len - postn_after_the_last_meaning_token - 1
             #   -> (b_size, 1)
 
-        return new_candidates.reshape(b_size, self.n_best, -1)
+        return new_candidates.reshape(b_size, self.n_best, -1), new_log_probs.exp()
+
 
     def calculate_n_accepted_in_drafts(self, draft_tokens, masked_probs):
         """
