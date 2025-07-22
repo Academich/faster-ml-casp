@@ -1341,7 +1341,7 @@ class TranslationInferenceBeamSearchSpeculative:
             #   -> (1,)
             possible_draft_len = self.max_len - postn_after_the_last_meaning_token - 1
             #   -> (b_size, 1)
-        return new_candidates.reshape(b_size, self.n_best, -1)
+        return new_candidates.reshape(b_size, self.n_best, -1), new_log_probs.exp()
 
     def generate_with_smart_drafts(
         self, src: "torch.LongTensor"
