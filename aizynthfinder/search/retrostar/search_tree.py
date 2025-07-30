@@ -54,6 +54,8 @@ class SearchTree(AndOrSearchTreeBase):
             "expansion_calls": 0,
             "reactants_generations": 0,
         }
+        self.retro_bm_wdth = 1
+        print("\n Retrostar search algorithm beam width ", self.retro_bm_wdth)
 
     @classmethod
     def from_json(cls, filename: str, config: Configuration) -> SearchTree:
@@ -196,20 +198,16 @@ class SearchTree(AndOrSearchTreeBase):
         return False
 
     def _select(self) -> Optional[MoleculeNode]:
-        # breakpoint()
         scores = np.asarray(
             [
-                node.target_value if node.expandable else np.inf
-                for node in self._mol_nodes if not node._children
+                node.target_value for node in self._mol_nodes if node.expandable
             ]
         )
-        idx = [i for i in range(len(self._mol_nodes)) if not self._mol_nodes[i]._children]
-
-        if scores.min() == np.inf:
+        if len(scores) == 0:
             return None
-        b_sz=16
-        return [self._mol_nodes[idx[i]] for i in np.argsort(scores)[:b_sz]]
-        return self._mol_nodes[int(np.argmin(scores))]
+        idx = [i for i in range(len(self._mol_nodes)) if self._mol_nodes[i].expandable]
+
+        return [self._mol_nodes[idx[i]] for i in np.argsort(scores)[:self.retro_bm_wdth]]
 
     @staticmethod
     def _update(node: MoleculeNode) -> None:
