@@ -42,19 +42,13 @@ class GeneralSmilesBasedModel(abc.ABC):
         # model.model_setup(args)
         self.model = model
 
-    def predict(self, mol: TreeMolecule):       
+    def predict(self, mol: TreeMolecule | list[TreeMolecule]):
         # model call requires a list of smiles
         if isinstance(mol, list):
             reactants, priors = self.model.model_call([one_mol.smiles for one_mol in mol])
         else:
             reactants, priors = self.model.model_call([mol.smiles])
-        # the model returns a nested list, flatten it
-        # breakpoint()
-        if isinstance(priors, list):
-            return reactants, priors
-        
-        reactants = np.array(reactants).flatten()
-        priors = np.array(priors).flatten()
+
         return reactants, priors
 
 

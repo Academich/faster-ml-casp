@@ -154,6 +154,9 @@ class MoleculeNode(_SuperNode):
         costs = -np.log(np.clip(priors, 1e-3, 1.0))
         reaction_costs = []
         reactions_to_expand = []
+        if len(reactions)==1 and isinstance(reactions[0], list):
+            reactions = reactions[0]
+            costs = costs[0]
         for reaction, cost in zip(reactions, costs):
             try:
                 _ = reaction.reactants
