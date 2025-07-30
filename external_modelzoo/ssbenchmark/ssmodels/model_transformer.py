@@ -193,121 +193,37 @@ class model_transformer(SSMethod):
 
         return smiles, log_lhs, original_smiles
 
-    def _model_call(self, X): # X is a list of smiles
-        smi_for_input = [smi for smi in X if smi not in self.smi2tuple_of_preclist_and_probs]
-        if len(smi_for_input) > 0: 
-            src_smi_tensor_list = [torch.tensor(self.model.tokenizer.encode(smi), device=self.device).long() for smi in smi_for_input]
-            tokens = pad_sequence(src_smi_tensor_list, padding_value=self.model.tokenizer.pad_token_idx, batch_first=True)
-            # breakpoint()
+    def _model_call(self, X):  # X is a list of B smiles
+        seen = set()
+        uniq_smis = [x for x in X if not (x in seen or seen.add(x))]
+        smi_for_input = [smi for smi in uniq_smis if smi not in self.smi2tuple_of_preclist_and_probs]
+
+        if len(smi_for_input) > 0:
+            src_smi_tensor_list = [torch.tensor(self.model.tokenizer.encode(smi), device=self.device).long() for smi in
+                                   smi_for_input]
+            tokens = pad_sequence(src_smi_tensor_list, padding_value=self.model.tokenizer.pad_token_idx,
+                                  batch_first=True)  ## -> (B2,L)
             with torch.inference_mode():
                 generated, probs = self.model.generate(tokens)  ## -> (B2,K,L), (B2,L)
-        all_smiles_list =[]
+        all_smiles_list = []
         all_probs_list = []
-        print("\n\n\nInside model call")
-        j=0
-        for i,smi in enumerate(X):
-            print("\n\nSrc smi:", smi)
-            print("CanSrc smi:", canonicalize_smiles(smi, sort=True))
+
+        j = 0
+        for i, smi in enumerate(X):
             if smi in self.smi2tuple_of_preclist_and_probs:
-                curr_rxn_smiles, curr_probs =  self.smi2tuple_of_preclist_and_probs[smi]
+                curr_rxn_smiles, curr_probs = self.smi2tuple_of_preclist_and_probs[smi]
                 all_smiles_list.append(curr_rxn_smiles)
                 all_probs_list.append(curr_probs)
-                print("\nRxn prec from dict:", [canonicalize_smiles(rxn, sort=True) for rxn in curr_rxn_smiles])
-                print("\nProbs from dict:", curr_probs)
             else:
-                curr_rxn_smiles = self.model.tokenizer.decode_batch(generated[j].cpu().numpy()) # TODO: index 0?
+                curr_rxn_smiles = self.model.tokenizer.decode_batch(generated[j].cpu().numpy())
                 curr_probs = probs[j].cpu().numpy()
                 j += 1
+
                 all_smiles_list.append(curr_rxn_smiles)
                 all_probs_list.append(curr_probs)
-                print("\nRxn prec:", [canonicalize_smiles(rxn, sort=True) for rxn in curr_rxn_smiles])
-                print("\nProbs:", curr_probs)
+
                 self.smi2tuple_of_preclist_and_probs[smi] = (curr_rxn_smiles, curr_probs)
-        return all_smiles_list, all_probs_list
-
-    def _model_call_without_cash(self, X): # X is a list of smiles
-        # src_smi_list = [self.model.tokenizer.encode(smi) for smi in X]
-        src_smi_tensor_list = [torch.tensor(self.model.tokenizer.encode(smi), device=self.device).long() for smi in X]
-        tokens = pad_sequence(src_smi_tensor_list, padding_value=self.model.tokenizer.pad_token_idx, batch_first=True)
-        # breakpoint()
-        with torch.inference_mode():
-            generated, probs = self.model.generate(tokens)  ## -> (B,K,L), (B,L)
-        all_smiles_list =[]
-        all_probs_list = []
-        for i in range(generated.shape[0]):
-            # print("\n\nSrc smi:", canonicalize_smiles(X[i], sort=True))    
-            rxn_smiles = self.model.tokenizer.decode_batch(generated[i].cpu().numpy()) # TODO: index 0?
-            all_smiles_list.append(rxn_smiles)
-            all_probs_list.append(probs[i].cpu().numpy())
-            # print("\n\nRxn prec:", [canonicalize_smiles(rxn, sort=True) for rxn in rxn_smiles])
-            # print("\nProbs:", probs[i].cpu().numpy()) 
-        return all_smiles_list, all_probs_list  ## list of B lists of length K; list of B np_arrays(float32) of length K  
-        return smiles, probs
-        
-        canon_rxnsmi_list = []
-        prob_list = []
-        s = set()
-        otchet = []
-        for smi,p in zip(smiles,probs):
-            canon_rxnsmi = canonicalize_smiles(smi, sort=False)
-            if canon_rxnsmi is not None:
-                canon_rxnsmi = self.filter_stock_mols(canon_rxnsmi)
-                if canon_rxnsmi == "":
-                    continue
-                ###
-                if canon_rxnsmi in s:
-                    continue
-                mini_otch = []
-                stock_l = []
-                for canon_molsmi in canon_rxnsmi.split("."):
-                    is_in_stock = Chem.MolToInchiKey(Chem.MolFromSmiles(canon_molsmi)) in self._stock_inchikeys
-                    stock_l.append(is_in_stock)
-                    mini_otch.append(canon_molsmi+" stock "+ str(is_in_stock))
-                otchet.append(".".join(mini_otch))
-                ###
-
-                canon_rxnsmi_list.append(canon_rxnsmi)
-
-                if all(stock_l):
-                    prob_list.append(1.)
-                else:
-                    prob_list.append(p)
-                    
-                s.add(canon_rxnsmi)
-
-        canon_rxnsmi_list
-
-        if len(canon_rxnsmi_list) == 0:
-            return [None], [0.]
-        # prob_list = [1 / len(canon_rxnsmi_list)] * len(canon_rxnsmi_list)
-        # print("\n\nOutput Canon Smiles List:", canon_rxnsmi_list)
-        # print("\nOutput Canon Smiles List stock inf:", otchet)
-        # print("\nOutput Probs List:", prob_list)
-        return canon_rxnsmi_list, prob_list
-        output = [1 / len(smiles)] * len(smiles) # TODO: remove crutch
-        return smiles, output
-
-        from molbart.data.datasets import ReactionDataset
-        from molbart.predict import predict
-
-        print("Reading dataset...")
-        dataset = ReactionDataset(X, X)
-        print("Finished dataset.")
-
-        dm = self.build_datamodule(
-            self.model_args, dataset, self.tokeniser, self.model.max_seq_len
-        )
-        dm.setup()
-        test_loader = dm.test_dataloader()
-        print("Finished loader.")
-
-        print("Evaluating model...")
-        smiles, log_lhs, original_smiles = self.predict(self.model, test_loader)
-        output = F.softmax(
-            torch.Tensor(log_lhs), dim=1
-        )  # Added by Paula: AZF requires probabilities not log_lhs
-
-        return smiles, output.tolist()
+        return all_smiles_list, all_probs_list  ## list of B lists of length K; list of B np_arrays(float32) of length K
 
     def model_call(self, X):
         return self._model_call(X)
