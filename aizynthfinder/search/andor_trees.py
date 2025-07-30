@@ -103,11 +103,9 @@ class SplitAndOrTree:
             self._traces.append(graph)
 
         children_to_search = [
-            child for child in node.children if child not in self._black_list
+            child for child in node.children if child not in self._black_list and child.solved
         ]
         if not children_to_search:
-            for child in node.children:
-                self._black_list.remove(child)
             return
 
         graph_copy = graph.copy()
