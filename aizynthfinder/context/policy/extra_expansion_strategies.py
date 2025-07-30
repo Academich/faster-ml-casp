@@ -86,26 +86,16 @@ class ModelZooExpansionStrategy(ExpansionStrategy):
     def get_actions(self, molecules: Sequence[TreeMolecule], cache_molecules: Optional[Sequence[TreeMolecule]] = None
                     ) -> Tuple[List[RetroReaction], List[float]]:
         batched_possible_actions = []
-        # possible_actions_priors = []
-        # breakpoint()
+
         predicted_reactants_list, predicted_probs_list = self.model.predict(molecules) # smiles, probabilities
         for i in range(len(molecules)):
             possible_actions = []
             mol = molecules[i]
             predicted_reactants = predicted_reactants_list[i]  # -> # list of length K
             predicted_probs = predicted_probs_list[i]  # -> # np_array float of len K
-            ## predicted_reactants, predicted_priors = self.model.predict(mol) # smiles, probabilities
-            # breakpoint()
+
             assert len(predicted_reactants) == len(predicted_probs)
 
-            # TODO: temporary crutch
-            # probable_transforms_idx = self._cutoff_predictions(predicted_priors)
-            # possible_moves = predicted_reactants[probable_transforms_idx]
-            # possible_moves_probabilities = predicted_priors[probable_transforms_idx]
-            ##possible_moves = predicted_reactants  # list of len K
-            ## possible_moves_probabilities = predicted_priors  
-
-            # possible_actions_priors.append(predicted_priors)
             for idx, move in enumerate(predicted_reactants):
                 metadata = dict()
                 metadata["reaction"] = move
@@ -113,13 +103,10 @@ class ModelZooExpansionStrategy(ExpansionStrategy):
                 metadata["policy_probability_rank"] = idx
                 metadata["policy_name"] = self.key
 
-                # add the SmilesBasedRetroReaction
                 smilesReaction = SmilesBasedRetroReaction(mol, reactants_str=move, metadata=metadata)
-                ##print(smilesReaction)
                 possible_actions.append(smilesReaction)
             batched_possible_actions.append(possible_actions)
         return batched_possible_actions, predicted_probs_list  # List of len B of list of K SmilesBasedRetroReactions; list of B np_arrays(float32) of length K
-        # return batched_possible_actions, predicted_probs_list
 
 class SMILEStoSMILESExpansionStrategy(ExpansionStrategy):
     """
