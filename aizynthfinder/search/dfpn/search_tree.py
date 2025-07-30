@@ -14,17 +14,7 @@ if TYPE_CHECKING:
     from aizynthfinder.context.config import Configuration
     from aizynthfinder.search.andor_trees import TreeNodeMixin
     from aizynthfinder.utils.type_utils import List, Optional, Sequence, Union
-from rdkit import Chem
 
-
-
-def canonicalize_smiles(s):
-    if s == "":
-        return s
-    m = Chem.MolFromSmiles(s)
-    if m is None:
-        return "!"
-    return Chem.MolToSmiles(m)
 
 class SearchTree(AndOrSearchTreeBase):
     """
@@ -70,7 +60,6 @@ class SearchTree(AndOrSearchTreeBase):
         """Return the molecule nodes of the tree"""
         return self._mol_nodes
 
-    
     def one_iteration(self) -> bool:
         """
         Perform one iteration of expansion.
@@ -92,25 +81,16 @@ class SearchTree(AndOrSearchTreeBase):
             self._routes = []
             self._frontier = self.root
         assert self.root is not None
-        mol_id = 0
+
         while True:
             # Expand frontier, should be OR node
             assert isinstance(self._frontier, MoleculeNode)
-            
-            ##print(f"\n\n{mol_id}: _frontier.mol.original_smiles \n", self._frontier.mol.original_smiles)
-            # if mol_id == 6:
-            #     breakpoint()
-            mol_id += 1
-            ##print(f"\n{self._frontier.mol.original_smiles} is in STOCK: ",self._frontier.in_stock)
             expanded_or = self._search_step()
-            ##print("\nexpanded_OR", expanded_or)
             expanded_and = False
             if self._frontier:
                 # Expand frontier again, this time an AND node
-                ##print("\n_frontier.reaction._make_smiles():\n",self._frontier.reaction._make_smiles())
                 assert isinstance(self._frontier, ReactionNode)
                 expanded_and = self._search_step()
-                ##print("\nexpanded_AND", expanded_and)
             if (
                 expanded_or
                 or expanded_and
