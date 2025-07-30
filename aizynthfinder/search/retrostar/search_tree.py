@@ -111,20 +111,14 @@ class SearchTree(AndOrSearchTreeBase):
         if next_node_list  is None or len(next_node_list)==0:
             self._logger.debug("No expandable nodes in Retro* iteration")
             raise StopIteration
-        
-        root_solved_counter = 0
+
         self._expand(next_node_list)
         for next_node in next_node_list:
             if not next_node.children:
                 next_node.expandable = False
 
             self._update(next_node)
-            if self.root.solved:
-                print("self.root.solved")
-                self.root.solved = False
-                root_solved_counter += 1
-
-        return root_solved_counter#self.root.solved
+        return self.root.solved
 
     def routes(self) -> List[ReactionTree]:
         """

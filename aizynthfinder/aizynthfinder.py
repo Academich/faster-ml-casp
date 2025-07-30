@@ -218,7 +218,6 @@ class AiZynthFinder:
         if show_progress:
             pbar = tqdm(total=self.config.search.iteration_limit, leave=False)
 
-        paroutes_counter = 0
         while (
             time_past < self.config.search.time_limit
             and i <= self.config.search.iteration_limit
@@ -228,13 +227,9 @@ class AiZynthFinder:
             self.search_stats["iterations"] += 1
 
             try:
-                num_of_solved = self.tree.one_iteration()
-                paroutes_counter += num_of_solved
-                is_solved = paroutes_counter > 0
+                is_solved = self.tree.one_iteration()
             except StopIteration:
-                break
-
-            if paroutes_counter >= 7:
+                is_solved = False
                 break
 
             if is_solved and "first_solution_time" not in self.search_stats:
@@ -254,7 +249,6 @@ class AiZynthFinder:
         time_past = time.time() - time0
         self._logger.debug("Search completed")
         self.search_stats["time"] = time_past
-        print("\nparoutes_counter",paroutes_counter)
         return time_past, self.search_stats["iterations"], is_solved
 
     def _setup_focussed_bonds(self, target_mol: Molecule) -> None:
