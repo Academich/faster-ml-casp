@@ -149,7 +149,7 @@ class SearchTree(AndOrSearchTreeBase):
 
     def _expand(self, node_list: MoleculeNode) -> None:
         batch_reactions, batch_priors = self.config.expansion_policy([node.mol for node in node_list])
-        # breakpoint()
+
         for i in range(len(node_list)):
             node = node_list[i]
             reactions = batch_reactions[i]

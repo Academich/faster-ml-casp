@@ -360,7 +360,7 @@ class TreeAnalysis:
         """
         if len(items) <= selection.nmin:
             return items, scores
-        #breakpoint()##
+
         max_return, min_return = selection.nmax, selection.nmin
         if selection.return_all:
             nsolved = sum(int(item.is_solved) for item in items)

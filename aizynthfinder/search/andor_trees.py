@@ -79,7 +79,7 @@ class SplitAndOrTree:
     ) -> None:
         self._traces: List[_AndOrTrace] = []
         self._black_list: List[TreeNodeMixin] = []
-        breakpoint()
+
         graph = _AndOrTrace(root_node)
         self._samples = {child: 0 for child in root_node.children}
         if root_node.children:

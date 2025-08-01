@@ -280,8 +280,6 @@ def _process_multi_smiles(
             finder.routes.compute_scores(*finder.scorers.objects())
             stats = finder.extract_statistics()
 
-            solved_str = "is solved" if stats["is_solved"] else "is not solved"
-            logger().info(f"Done with {smi} for {iterations_num} iters in {search_time:.3} s and {solved_str}")
             if do_clustering:
                 _do_clustering(
                     finder, stats, detailed_results=True, model_path=route_distance_model

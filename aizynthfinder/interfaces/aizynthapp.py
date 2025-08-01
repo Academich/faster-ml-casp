@@ -145,7 +145,7 @@ class AiZynthApp:
             value=self.finder.config.search.return_first,
             description="Return first solved route",
         )
-        # breakpoint()
+
         self._input["max_transforms"] = BoundedIntText(
             description="Max tree depth",
             min=1,
