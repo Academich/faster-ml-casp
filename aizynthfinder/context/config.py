@@ -51,6 +51,7 @@ class _SearchConfiguration:
     break_bonds: List[List[int]] = field(default_factory=list)
     freeze_bonds: List[List[int]] = field(default_factory=list)
     break_bonds_operator: str = "and"
+    retro_bm_width: int = 1
 
 
 @dataclass

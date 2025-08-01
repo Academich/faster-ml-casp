@@ -54,7 +54,7 @@ class SearchTree(AndOrSearchTreeBase):
             "expansion_calls": 0,
             "reactants_generations": 0,
         }
-        self.retro_bm_wdth = 1
+        self.retro_bm_wdth = config.search.retro_bm_width
         print("\n Retrostar search algorithm beam width ", self.retro_bm_wdth)
 
     @classmethod
