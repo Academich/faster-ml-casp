@@ -44,8 +44,9 @@ python3 src/detokenize.py --data_dir data/USPTO_50K_PtoR_aug${AUGMENTATIONS}/val
 ```
 
 ## Checkpoints
-Link to the Medusa retrosynthesis checkpoint:
-https://drive.google.com/file/d/1jZfD0Fqj2P5Is5fK_9inUepM5rfe4AGM/view?usp=drive_link
+Link to the single-step models:
+1. Basic transformer: https://drive.google.com/drive/folders/1v4pKYWlE0qNA-ksa7yX55i7qMeesURON
+2. Medusa: https://drive.google.com/file/d/1jZfD0Fqj2P5Is5fK_9inUepM5rfe4AGM/view?usp=drive_link
 
 ## Building blocks
 The set of building blocks and the Caspyrus10k dataset used in this work can be found in this [Figshare repository](https://figshare.com/s/2eab4132b322229c1efc).
