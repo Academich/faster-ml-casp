@@ -103,10 +103,12 @@ class SplitAndOrTree:
             self._traces.append(graph)
 
         children_to_search = [
-            child for child in node.children if child not in self._black_list  if child.prop.get("solved", False) or
-            child.prop.get("proven", False)
+            child for child in node.children if child not in self._black_list  if child.prop.get("solved", False)
         ]
         if not children_to_search:
+            for child in node.children:
+                if child.prop.get("solved", False):
+                    self._black_list.remove(child)
             return
 
         graph_copy = graph.copy()
