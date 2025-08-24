@@ -18,13 +18,7 @@ class model_transformer(SSMethod):
         self.model_name = "Transformer"
         if module_path is not None:
             sys.path.insert(len(sys.path), os.path.abspath(module_path))
-        #___
 
-        stock_df: pd.DataFrame = pd.read_hdf('/home/mikhail/work/faster_ml_casp/paroutes_stock.hdf5', key="table")
-
-        inchis = stock_df["inchi_key"].values
-        self._stock_inchikeys = set(inchis)
-        #___
         self.smi2tuple_of_preclist_and_probs = dict()
 
     def preprocess(self, data, reaction_col):
@@ -141,19 +135,6 @@ class model_transformer(SSMethod):
         model.eval()
 
         self.model = model
-
-    def filter_stock_mols(self, canon_rxnsmi):
-        rxn =[]
-        in_stock_counter = 0
-        for canon_molsmi in canon_rxnsmi.split("."):
-            if Chem.MolToInchiKey(Chem.MolFromSmiles(canon_molsmi)) in self._stock_inchikeys:
-                in_stock_counter += 1
-                continue
-            rxn.append(canon_molsmi)
-
-        if in_stock_counter == len(canon_rxnsmi.split(".")):
-            return canon_rxnsmi
-        return (".").join(rxn)     
 
     def build_datamodule(self, args, dataset, tokeniser, max_seq_len):
         from molbart.data.datamodules import FineTuneReactionDataModule
