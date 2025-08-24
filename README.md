@@ -19,7 +19,7 @@ For development, install the pre-commit hooks:
 ```bash
 uv sync
 source .venv/bin/activate
-uv pre-commit install
+pre-commit install
 ```
 
 ## Data
