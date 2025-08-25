@@ -28,7 +28,14 @@ Link to the single-step models:
 2. Medusa: https://drive.google.com/drive/folders/1uE8J13AgPpfLRJuGuXBOJS1aP2IA1fTk?usp=sharing
 
 ## Building blocks
-The set of building blocks and the Caspyrus10k dataset used in this work can be found in this [Figshare repository](https://figshare.com/s/2eab4132b322229c1efc).
+The set of building blocks (paroutes_stock.hdf5 containing 13414 molecules) and the Caspyrus10k (CASPyrus10k.csv) dataset used in this work can be found in this [Figshare repository](https://figshare.com/s/2eab4132b322229c1efc).
+
+AiZynthFinder needs only the SMILES from CASPyrus10k.csv:
+```bash
+import pandas
+
+pandas.read_csv('CASPyrus10k.csv')["smiles"].to_csv('CASPyrus10k.smi', header=False, index=False)
+```
 
 ## References
 1. Genheden, S., Thakkar, A., Chadimová, V., Reymond, J., Engkvist, O., & Bjerrum, E. (2020). AiZynthFinder (Version 2.2.1) [Computer software]. https://doi.org/https://doi.org/10.1186/s13321-020-00472-1
