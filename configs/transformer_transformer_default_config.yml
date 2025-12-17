@@ -31,3 +31,4 @@ expansion:
         beam_size: 1
 stock:
   paroutes: paroutes_stock.hdf5
+  include_mols_with_num_atoms_up_to: 5

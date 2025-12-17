@@ -63,7 +63,12 @@ class Stock(ContextCollection):
         self._stop_criteria: StrDict = {"amount": None, "price": None, "counts": {}}
         self._use_stop_criteria: bool = False
 
+        self._include_little_mols: bool = False
+        self._max_num_of_atoms_in_little_mols: int = 0
     def __contains__(self, mol: Molecule) -> bool:
+        if self._include_little_mols and mol.rd_mol.GetNumAtoms() <= self._max_num_of_atoms_in_little_mols:
+            return True
+
         if not self.selection or mol.inchi_key in self._exclude:
             return False
 
@@ -174,8 +179,12 @@ class Stock(ContextCollection):
         if "stop_criteria" in config:
             self.set_stop_criteria(config["stop_criteria"])
 
+        if "include_mols_with_num_atoms_up_to" in config:
+            self._include_little_mols = True
+            self._max_num_of_atoms_in_little_mols = int(config["include_mols_with_num_atoms_up_to"])
+
         for key, stock_config in config.items():
-            if key == "stop_criteria":
+            if key == "stop_criteria" or key == "include_mols_with_num_atoms_up_to":
                 continue
 
             if not isinstance(stock_config, dict):
