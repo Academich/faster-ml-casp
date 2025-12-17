@@ -151,7 +151,7 @@ class MoleculeNode(_SuperNode):
             self._set_disproven()
             return
 
-        costs = -np.log(np.clip(priors, 1e-3, 1.0))
+        costs = -np.log(priors)
         reaction_costs = []
         reactions_to_expand = []
         if len(reactions)==1 and isinstance(reactions[0], list):
