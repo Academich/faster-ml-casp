@@ -3,7 +3,7 @@
 ## Overview
 Multi-step CASP with AiZynthFinder including a single-step SMILES-to-SMILES transformer accelerated by speculative decoding.
 Uses the code of [AiZynthFinder](https://github.com/MolecularAI/aizynthfinder) and [AiZynthFinder model zoo](https://github.com/PTorrenPeraire/modelsmatter_modelzoo) with some modifications.
-The single-step transformer accelerated with Medusa is implemented in [its own repository](https://github.com/Academich/SMILES-to-SMILES-transformer).
+The single-step transformer accelerated with Medusa is implemented in [its own repository](https://doi.org/10.5281/zenodo.18002214).
 
 ## Installation
 Install `uv` from [here](https://docs.astral.sh/uv/getting-started/installation/).
