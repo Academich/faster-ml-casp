@@ -24,8 +24,8 @@ expansion:
       module_path: single_step_retro/model/autoregressive
       kwargs:
         sampling: medusa
-        checkpoint_path: checkpoints/medusa/Retro/new_metrics_3e_4_from_scratch/cntnet_lr_00003/step=7827-val_l=0.249-val/acc_sequence_head_0=0.142-val/sum_beam_srch_9_acc=0.892.ckpt
-        vocab_path: data/USPTO_50K_PtoR_aug1/test/vocabs/vocab.json
+        checkpoint_path: checkpoints/medusa/retro/6_epochs_lr3e_4_then_1ep_lr3e_5.ckpt
+        vocab_path: checkpoints/medusa/retro/vocab_trained_on_USPTO_50K_PtoR_aug20.json
         embedding_dim: 256
         feedforward_dim: 2048
         num_encoder_layers: 6

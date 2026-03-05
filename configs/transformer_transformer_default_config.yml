@@ -19,8 +19,8 @@ expansion:
       module_path: single_step_retro/model/autoregressive
       kwargs:
         sampling: beam_search
-        checkpoint_path: checkpoints/single_step_retrosynthesis/ss_transformer_checkpoint.ckpt
-        vocab_path: checkpoints/single_step_retrosynthesis/vocab.json
+        checkpoint_path: checkpoints/transformer/retro/step=337241-v_sq_acc=0.513-v_tk_acc=0.9904-v_l=0.0366.ckpt
+        vocab_path: checkpoints/transformer/retro/vocab.json
         embedding_dim: 256
         feedforward_dim: 2048
         num_encoder_layers: 6
