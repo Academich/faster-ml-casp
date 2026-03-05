@@ -28,8 +28,8 @@ Link to the single-step models:
 2. Medusa: https://drive.google.com/drive/folders/1uE8J13AgPpfLRJuGuXBOJS1aP2IA1fTk?usp=sharing
 
 ## Building blocks
-The set of building blocks (paroutes_stock.hdf5 containing 13414 molecules) and the Caspyrus10k (CASPyrus10k.csv) dataset used in this work can be found in this [Figshare repository](https://figshare.com/s/2eab4132b322229c1efc).
-
+The set of building blocks ("paroutes_stock.hdf5" containing 13414 molecules - PaRoutes stock-n1 ) and the Caspyrus10k ("CASPyrus10k.csv") dataset used in this work can be found in this [Figshare repository](https://figshare.com/s/2eab4132b322229c1efc).
+ZINC stock (17,422,831 molecules) "zinc_stock_17_04_20.hdf5" can be found here https://doi.org/10.6084/m9.figshare.12334577.v1
 AiZynthFinder needs only the SMILES from CASPyrus10k.csv:
 ```bash
 import pandas
