@@ -45,7 +45,6 @@ gdown https://drive.google.com/drive/folders/1uE8J13AgPpfLRJuGuXBOJS1aP2IA1fTk -
 
 To download the default AiZynthFinder template-based single-step model:
 ```bash
-mkdir aizynthfinder/public
 download_public_data ./aizynthfinder/public
 ``` 
 

@@ -1,4 +1,7 @@
-""" Module with script to download public data
+"""
+Module with script to download public data
+This module is modified for the needs of this project.
+It differs from the corresponding file in the original AiZynthFinder implementation
 """
 import argparse
 import os
@@ -24,15 +27,33 @@ FILES_TO_DOWNLOAD = {
         "filename": "uspto_ringbreaker_templates.csv.gz",
         "url": "https://zenodo.org/record/7341155/files/uspto_ringbreaker_unique_templates.csv.gz",
     },
-    "stock": {
+    "stock_zinc": {
         "filename": "zinc_stock.hdf5",
         "url": "https://ndownloader.figshare.com/files/23086469",
+    },
+    "caspirus10k":  {
+        "filename": "caspyrus10k.csv",
+        "url": "https://ndownloader.figshare.com/files/43491753?private_link=2eab4132b322229c1efc",
+    },
+    "stock_paroutes": {
+        "filename": "paroutes_n1_stock.hdf5",
+        "url": "https://ndownloader.figshare.com/files/43491756?private_link=2eab4132b322229c1efc",
     },
     "filter_policy_onnx": {
         "filename": "uspto_filter_model.onnx",
         "url": "https://zenodo.org/record/7797465/files/uspto_filter_model.onnx",
     },
+    "paroutes_n1_routes": {
+        "filename": "n1-routes.json",
+        "url": "https://zenodo.org/record/6275421/files/n1-routes.json?download=1",
+    },
+    "paroutes_n1_targets": {
+        "filename": "n1-targets.txt",
+        "url": "https://zenodo.org/record/6275421/files/n1-targets.txt?download=1",
+    },
 }
+
+BB_DIRECTORY = "bb_stock"
 
 YAML_TEMPLATE = """expansion:
   uspto:
@@ -71,13 +92,17 @@ def main() -> None:
         help="the path to download the files",
     )
     path = parser.parse_args().path
+    if not os.path.exists(path):
+        os.makedirs(path)
+    if not os.path.exists(os.path.join(path, BB_DIRECTORY)):
+        os.makedirs(os.path.join(path, BB_DIRECTORY))
 
     try:
         for key, filespec in FILES_TO_DOWNLOAD.items():
-            if key == "stock":
-                # Do not download ZINC here, download it separately
-                continue
-            _download_file(filespec["url"], os.path.join(path, filespec["filename"]))
+            save_path = os.path.join(path, filespec["filename"])
+            if key in ("stock_zinc", "stock_paroutes"):
+                save_path = os.path.join(path, BB_DIRECTORY, filespec["filename"])
+            _download_file(filespec["url"], save_path)
     except requests.HTTPError as err:
         print(f"Download failed with message {str(err)}")
         sys.exit(1)
@@ -95,7 +120,7 @@ def main() -> None:
                     path, FILES_TO_DOWNLOAD["ringbreaker_templates"]["filename"]
                 ),
                 os.path.join(path, FILES_TO_DOWNLOAD["filter_policy_onnx"]["filename"]),
-                os.path.join(path, FILES_TO_DOWNLOAD["stock"]["filename"]),
+                os.path.join(path, BB_DIRECTORY, FILES_TO_DOWNLOAD["stock_zinc"]["filename"]),
             )
         )
     print("Configuration file written to config.yml")
