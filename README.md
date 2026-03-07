@@ -35,15 +35,15 @@ Download the trained checkpoints of the single-step models and the corresponding
 mkdir checkpoints
 
 # Transformer
-gdown https://drive.google.com/drive/folders/1v4pKYWlE0qNA-ksa7yX55i7qMeesURON -O checkpoints/transformer --folder
+gdown https://drive.google.com/drive/folders/1v4pKYWlE0qNA-ksa7yX55i7qMeesURON -O checkpoints/retro/transformer --folder
 
 # Medusa
-gdown https://drive.google.com/drive/folders/1uE8J13AgPpfLRJuGuXBOJS1aP2IA1fTk -O checkpoints/medusa --folder
+gdown https://drive.google.com/drive/folders/1uE8J13AgPpfLRJuGuXBOJS1aP2IA1fTk -O checkpoints/retro/medusa --folder
 ```
 
 ### Template-based AiZynthFinder model and ZINC stock
 
-To download the default AiZynthFinder template-based single-step model and ZINC stock of building blocks:
+To download the default AiZynthFinder template-based single-step model:
 ```bash
 mkdir aizynthfinder/public
 download_public_data ./aizynthfinder/public

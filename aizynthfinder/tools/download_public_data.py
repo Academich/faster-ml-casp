@@ -73,7 +73,10 @@ def main() -> None:
     path = parser.parse_args().path
 
     try:
-        for filespec in FILES_TO_DOWNLOAD.values():
+        for key, filespec in FILES_TO_DOWNLOAD.items():
+            if key == "stock":
+                # Do not download ZINC here, download it separately
+                continue
             _download_file(filespec["url"], os.path.join(path, filespec["filename"]))
     except requests.HTTPError as err:
         print(f"Download failed with message {str(err)}")
