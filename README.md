@@ -22,10 +22,32 @@ source .venv/bin/activate
 pre-commit install
 ```
 
-## Checkpoints
-Link to the single-step models:
+## Checkpoints and data
+
+### Template-free single-step models
+
+Links to the single-step models:
 1. Basic transformer: https://drive.google.com/drive/folders/1v4pKYWlE0qNA-ksa7yX55i7qMeesURON
-2. Medusa: https://drive.google.com/drive/folders/1uE8J13AgPpfLRJuGuXBOJS1aP2IA1fTk?usp=sharing
+2. Medusa: https://drive.google.com/drive/folders/1uE8J13AgPpfLRJuGuXBOJS1aP2IA1fTk
+
+Download the trained checkpoints of the single-step models and the corresponding vocabs using `gdown`:
+```bash
+mkdir checkpoints
+
+# Transformer
+gdown https://drive.google.com/drive/folders/1v4pKYWlE0qNA-ksa7yX55i7qMeesURON -O checkpoints/transformer --folder
+
+# Medusa
+gdown https://drive.google.com/drive/folders/1uE8J13AgPpfLRJuGuXBOJS1aP2IA1fTk -O checkpoints/medusa --folder
+```
+
+### Template-based AiZynthFinder model and ZINC stock
+
+To download the default AiZynthFinder template-based single-step model and ZINC stock of building blocks:
+```bash
+mkdir aizynthfinder/public
+download_public_data ./aizynthfinder/public
+``` 
 
 ## Building blocks
 The set of building blocks ("paroutes_stock.hdf5" containing 13414 molecules - PaRoutes stock-n1 ) and the Caspyrus10k ("CASPyrus10k.csv") dataset used in this work can be found in this [Figshare repository](https://figshare.com/s/2eab4132b322229c1efc).
