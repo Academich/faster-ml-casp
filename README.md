@@ -58,7 +58,7 @@ gdown https://drive.google.com/drive/folders/1uE8J13AgPpfLRJuGuXBOJS1aP2IA1fTk -
 
 Run the following command:
 ```bash
-download_public_data ./aizynthfinder/public
+download_public_data data
 ```
 
 This is an alias for `aizynthfinder/tools/download_public_data.py`
@@ -70,12 +70,27 @@ It downloads:
   - PaRoutes dataset: `n1-routes.json`, `n1-targets.txt`
 
 It also generates the default config for AiZynthFinder: config.yaml
-All the files are saved to the directory `aizynthfinder/public`
+All the files are saved to the directory `data`
 
 ## Building blocks
 For reference, the building block stocks can be also found here:
 ZINC: https://doi.org/10.6084/m9.figshare.12334577.v1
 PaRoutes (and Caspyrus10k): https://figshare.com/s/2eab4132b322229c1efc
+
+## Usage
+For synthesis planning with Transformer, run:
+
+```bash
+bash run_transformer.sh
+```
+
+For synthesis planning with Medusa, run:
+
+```bash
+bash run_medusa.sh
+```
+
+To select the building block stock, use either `STOCK=paroutes` or `STOCK=zinc` in the bash scripts.
 
 
 ## References
