@@ -1,12 +1,14 @@
 #! /bin/bash
 
-SMILES=caspyrus_10k.smi
-OUTPUT=caspyrus_10k
+SMILES=data/caspirus10k.smi
+OUTPUT=caspyrus10k
 CONFIG=configs/transformer_medusa_default_config.yml
 PROCESSES=0
+STOCK=paroutes
 
 CUDA_VISIBLE_DEVICES=0 aizynthcli --config $CONFIG \
 --smiles $SMILES \
---output ${OUTPUT}_medusa.json \
+--output ${OUTPUT}_${STOCK}_medusa.json \
+--stocks $STOCK \
 --nproc $PROCESSES \
  --log_to_file

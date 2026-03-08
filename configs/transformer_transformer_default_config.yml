@@ -30,5 +30,6 @@ expansion:
         max_size: 200
         beam_size: 1
 stock:
-  paroutes: paroutes_stock.hdf5
+  paroutes: data/bb_stock/paroutes_n1_stock.hdf5
+  zinc: data/bb_stock/zinc_stock.hdf5
   include_mols_with_num_atoms_up_to: 5

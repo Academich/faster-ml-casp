@@ -3,6 +3,7 @@ Module with script to download public data
 This module is modified for the needs of this project.
 It differs from the corresponding file in the original AiZynthFinder implementation
 """
+
 import argparse
 import os
 import sys
@@ -31,7 +32,7 @@ FILES_TO_DOWNLOAD = {
         "filename": "zinc_stock.hdf5",
         "url": "https://ndownloader.figshare.com/files/23086469",
     },
-    "caspirus10k":  {
+    "caspirus10k": {
         "filename": "caspyrus10k.csv",
         "url": "https://ndownloader.figshare.com/files/43491753?private_link=2eab4132b322229c1efc",
     },
@@ -107,6 +108,24 @@ def main() -> None:
         print(f"Download failed with message {str(err)}")
         sys.exit(1)
 
+    # Preprocess CASPyrus10k dataset
+    caspyrus10k_path = os.path.join(path, FILES_TO_DOWNLOAD["caspirus10k"]["filename"])
+    if os.path.exists(caspyrus10k_path):
+        print("Preprocessing CASPyrus10k dataset")
+        try:
+            import pandas as pd
+        except ImportError:
+            print("pandas is not installed")
+            sys.exit(1)
+        try:
+            caspyrus10k_df = pd.read_csv(caspyrus10k_path)
+            caspyrus10k_df["smiles"].to_csv(
+                os.path.join(path, "caspirus10k.smi"), header=False, index=False
+            )
+        except Exception as err:
+            print(f"Error processing CASPyrus10k dataset: {str(err)}")
+            sys.exit(1)
+
     with open(os.path.join(path, "config.yml"), "w") as fileobj:
         path = os.path.abspath(path)
         fileobj.write(
@@ -120,7 +139,9 @@ def main() -> None:
                     path, FILES_TO_DOWNLOAD["ringbreaker_templates"]["filename"]
                 ),
                 os.path.join(path, FILES_TO_DOWNLOAD["filter_policy_onnx"]["filename"]),
-                os.path.join(path, BB_DIRECTORY, FILES_TO_DOWNLOAD["stock_zinc"]["filename"]),
+                os.path.join(
+                    path, BB_DIRECTORY, FILES_TO_DOWNLOAD["stock_zinc"]["filename"]
+                ),
             )
         )
     print("Configuration file written to config.yml")
