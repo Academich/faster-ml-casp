@@ -4,7 +4,6 @@ search:
   iteration_limit: 500
   return_first: false
   time_limit: 3600
-  retro_bm_width: 1
   exclude_target_from_stock: true
   algorithm_config:
     use_prior: true

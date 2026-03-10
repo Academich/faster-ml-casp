@@ -92,6 +92,31 @@ bash run_medusa.sh
 
 To select the building block stock, use either `STOCK=paroutes` or `STOCK=zinc` in the bash scripts.
 
+To run the experiments on PaRoutes-n1, run
+
+```bash
+bash run_transformer_paroutes_n1.sh
+```
+
+or
+
+```bash
+bash run_medusa_paroutes_n1.sh
+```
+### Configuration
+The configuration files for AiZynthFinder, Transformer or Medusa can be found in `configs/`.
+
+AiZynthFinder allows constraining the planning by both total time and the maximum number of iterations, and these must be set simultaneously. 
+Therefore, those constraints should be chosen carefully, because ultimately, the strictest of the two is the limiting constraint. 
+In our experiments, we chose either a time limit (assigning a very large maximum number of iterations) or an iteration limit (assigning a very large maximum time). 
+This made it easier to analyze the experiments.
+To change the time limit for synthesis planning, change the number of seconds in `search` -> `time_limit` (e.g., `5`, `15` or `180`). 
+To change the number of iterations of planning, change `search` -> `iteration_limit`.  
+
+To change beam size of the single step model, change `expansion` -> `data` -> `kwargs` -> `beam_size` (e.g., `10` or `50`). 
+To change the planning algorithm, change `search` -> `algorithm` (e.g., `aizynthfinder.search.retrostar.search_tree.SearchTree` or `aizynthfinder.search.dfpn.search_tree.SearchTree`).
+To change maximal depth of route, change `search` -> `max_transforms` (e.g., `5` or `7`).  
+`search` -> `return_first: true` means that the planning is stopped if the first complete route is found. 
 
 ## References
 1. Genheden, S., Thakkar, A., Chadimová, V., Reymond, J., Engkvist, O., & Bjerrum, E. (2020). AiZynthFinder (Version 2.2.1) [Computer software]. https://doi.org/https://doi.org/10.1186/s13321-020-00472-1
