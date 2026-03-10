@@ -55,7 +55,7 @@ class SearchTree(AndOrSearchTreeBase):
             "reactants_generations": 0,
         }
         self.retro_bm_wdth = config.search.retro_bm_width
-        print("\n Retrostar search algorithm beam width ", self.retro_bm_wdth)
+        # print("\n Retrostar search algorithm beam width ", self.retro_bm_wdth)
 
     @classmethod
     def from_json(cls, filename: str, config: Configuration) -> SearchTree:
