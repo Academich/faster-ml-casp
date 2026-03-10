@@ -2,19 +2,14 @@ search:
   algorithm: aizynthfinder.search.retrostar.search_tree.SearchTree
   max_transforms: 5
   iteration_limit: 25000
-  return_first: false
+  return_first: true
   time_limit: 15
-  retro_bm_width: 16
+  retro_bm_width: 1
   exclude_target_from_stock: true
   algorithm_config:
     use_prior: true
     prune_cycles_in_search: true
     immediate_instantiation: [transformer]
-
-post_processing:
-  max_routes: 7
-  min_routes: 7
-  all_routes: false
 
 expansion:
   transformer:

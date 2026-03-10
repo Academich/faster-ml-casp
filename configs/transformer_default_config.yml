@@ -4,7 +4,7 @@ search:
   iteration_limit: 25000
   return_first: true
   time_limit: 15
-  retro_bm_width: 16
+  retro_bm_width: 1
   exclude_target_from_stock: true
   algorithm_config:
     use_prior: true
@@ -28,7 +28,7 @@ expansion:
         num_heads: 8
         activation: relu
         max_size: 200
-        beam_size: 1
+        beam_size: 10
 stock:
   paroutes: data/bb_stock/paroutes_n1_stock.hdf5
   zinc: data/bb_stock/zinc_stock.hdf5

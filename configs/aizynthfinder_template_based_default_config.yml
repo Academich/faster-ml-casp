@@ -1,3 +1,24 @@
+search:
+  algorithm: aizynthfinder.search.retrostar.search_tree.SearchTree
+  algorithm_config:
+    C: 1.4
+    default_prior: 0.5
+    use_prior: True
+    prune_cycles_in_search: True
+    search_rewards: ["state score"]
+    immediate_instantiation: ()
+    mcts_grouping: None
+    search_rewards_weights: []
+  max_transforms: 7
+  iteration_limit: 100000000000000000
+  retro_bm_width: 1
+  time_limit: 18000
+  return_first: true
+  exclude_target_from_stock: true
+  break_bonds: []
+  freeze_bonds: []
+  break_bonds_operator: "and"
+
 expansion:
   uspto:
     - data/uspto_model.onnx
@@ -8,5 +29,5 @@ expansion:
 filter:
   uspto: data/uspto_filter_model.onnx
 stock:
-  paroutes: data/bb_stock/paroutes_n1_stock.hdf5
   zinc: data/bb_stock/zinc_stock.hdf5
+  include_mols_with_num_atoms_up_to: 5

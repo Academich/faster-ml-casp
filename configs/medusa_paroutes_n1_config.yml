@@ -1,0 +1,39 @@
+search:
+  algorithm: aizynthfinder.search.retrostar.search_tree.SearchTree
+  max_transforms: 10
+  iteration_limit: 500
+  return_first: false
+  time_limit: 3600
+  retro_bm_width: 1
+  exclude_target_from_stock: true
+  algorithm_config:
+    use_prior: true
+    prune_cycles_in_search: true
+    immediate_instantiation: [transformer]
+
+post_processing:
+  max_routes: 50
+  min_routes: 50
+  all_routes: false
+
+expansion:
+  transformer:
+    type: aizynthfinder.context.policy.extra_expansion_strategies.ModelZooExpansionStrategy
+    gpu_mode: true
+    data:
+      module_path: single_step_retro/model/autoregressive
+      kwargs:
+        sampling: medusa
+        checkpoint_path: checkpoints/retro/medusa/6_epochs_lr3e_4_then_1ep_lr3e_5.ckpt
+        vocab_path: checkpoints/retro/medusa/vocab_trained_on_USPTO_50K_PtoR_aug20.json
+        embedding_dim: 256
+        feedforward_dim: 2048
+        num_encoder_layers: 6
+        num_decoder_layers: 6
+        num_heads: 8
+        activation: gelu
+        max_size: 200
+        beam_size: 10
+stock:
+  paroutes: data/bb_stock/paroutes_n1_stock.hdf5
+  include_mols_with_num_atoms_up_to: 5
