@@ -72,6 +72,11 @@ It downloads:
 It also generates the default config for AiZynthFinder: config.yaml
 All the files are saved to the directory `data`
 
+## USPTO 50K
+We use the same version of USPTO 50K as in the GLN paper (https://github.com/Hanjun-Dai/GLN) with splits originally produced
+using a script from the retrosym paper (https://github.com/connorcoley/retrosim/blob/master/retrosim/data/get_data.py).
+The files are provided in `data/uspto50k_test`.
+
 ## Building blocks
 For reference, the building block stocks can be also found here:
 ZINC: https://doi.org/10.6084/m9.figshare.12334577.v1
