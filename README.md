@@ -128,11 +128,15 @@ gdown https://drive.google.com/drive/folders/1sBiVgFZyD4F42nVqR835-0Tl90LkQvU9 -
 
 To change beam size of the single step model at configs/medusa_default_config.yml or configs/transformer_default_config.yml, 
 change `expansion` -> `data` -> `kwargs` -> `beam_size` (e.g., `10` or `50`). 
+
 To evaluate Medusa do:
-python3 round_trip_transformer_script.py --retro_model_config configs/medusa_default_config.yml
+```bash
+CUDA_VISIBLE_DEVICES=0 python3 round_trip_transformer_script.py --use_gpu --retro_model_config configs/medusa_default_config.yml
+```
 
 To evaluate Transformer single-step retrosynthesis model:
-python3 round_trip_transformer_script.py --retro_model_config configs/transformer_default_config.yml
+```bash
+CUDA_VISIBLE_DEVICES=0 python3 round_trip_transformer_script.py --use_gpu --retro_model_config configs/transformer_default_config.yml
 ```
 ## References
 1. Genheden, S., Thakkar, A., Chadimová, V., Reymond, J., Engkvist, O., & Bjerrum, E. (2020). AiZynthFinder (Version 2.2.1) [Computer software]. https://doi.org/https://doi.org/10.1186/s13321-020-00472-1
