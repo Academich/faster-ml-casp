@@ -1,0 +1,16 @@
+expansion:
+  transformer:
+    data:
+      module_path: single_step_retro/model/autoregressive
+      kwargs:
+        sampling: beam_search
+        checkpoint_path: checkpoints/reaction_prediction/step=845608-v_sq_acc=0.877-v_tk_acc=0.9975-v_l=0.0176.ckpt
+        vocab_path: checkpoints/reaction_prediction/vocab.json
+        embedding_dim: 256
+        feedforward_dim: 2048
+        num_encoder_layers: 4
+        num_decoder_layers: 4
+        num_heads: 8
+        activation: relu
+        max_size: 200
+        beam_size: 10

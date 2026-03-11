@@ -94,15 +94,12 @@ For synthesis planning with Medusa, run:
 ```bash
 bash run_medusa.sh
 ```
-
 To select the building block stock, use either `STOCK=paroutes` or `STOCK=zinc` in the bash scripts.
 
 To run the experiments on PaRoutes-n1, run
-
 ```bash
 bash run_transformer_paroutes_n1.sh
 ```
-
 or
 
 ```bash
@@ -123,6 +120,20 @@ To change the planning algorithm, change `search` -> `algorithm` (e.g., `aizynth
 To change maximal depth of route, change `search` -> `max_transforms` (e.g., `5` or `7`).  
 `search` -> `return_first: true` means that the planning is stopped if the first complete route is found. 
 
+
+### To measure round-trip accuracy for Transformer or Medusa you need to download the transformer product model
+# Transformer product model
+mkdir checkpoints/reaction_prediction
+gdown https://drive.google.com/drive/folders/1sBiVgFZyD4F42nVqR835-0Tl90LkQvU9 -O checkpoints/reaction_prediction --folder
+
+To change beam size of the single step model at configs/medusa_default_config.yml or configs/transformer_default_config.yml, 
+change `expansion` -> `data` -> `kwargs` -> `beam_size` (e.g., `10` or `50`). 
+To evaluate Medusa do:
+python3 round_trip_transformer_script.py --retro_model_config configs/medusa_default_config.yml
+
+To evaluate Transformer single-step retrosynthesis model:
+python3 round_trip_transformer_script.py --retro_model_config configs/transformer_default_config.yml
+```
 ## References
 1. Genheden, S., Thakkar, A., Chadimová, V., Reymond, J., Engkvist, O., & Bjerrum, E. (2020). AiZynthFinder (Version 2.2.1) [Computer software]. https://doi.org/https://doi.org/10.1186/s13321-020-00472-1
 2. Torren-Peraire, P., Hassen, A., Genheden, S., Verhoeven, J., Clevert, D., Preuss, M., & Tetko, I. (2022). Models Matter: the impact of single-step retrosynthesis on synthesis planning. https://doi.org/10.1039/D3DD00252G
