@@ -2,7 +2,7 @@
 
 SMILES=data/caspirus10k.smi
 OUTPUT=caspyrus10k
-CONFIG=configs/transformer_medusa_default_config.yml
+CONFIG=configs/medusa_default_config.yml
 PROCESSES=0
 STOCK=paroutes
 
