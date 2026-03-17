@@ -1,6 +1,6 @@
 #! /bin/bash
 
-SMILES=data/n1-targets.txt
+SMILES=data/n1-targets.txt  # or data/n1-targets_1000_subsample.txt
 OUTPUT=paroutes_n1
 CONFIG=configs/medusa_paroutes_n1_config.yml
 PROCESSES=0

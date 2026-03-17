@@ -72,6 +72,24 @@ It downloads:
 It also generates the default config for AiZynthFinder: config.yaml
 All the files are saved to the directory `data`
 
+### Downsampling PaRoutes n1-targets
+For the experiment with a 1k subsample of n1-targets, the subsample has been obtained as follows:
+```python
+import random
+
+filename = "data/n1-targets.txt"
+with open(filename, "r") as fileobj:        
+    smiles = [line.strip() for line in fileobj.readlines()]
+
+rng = random.Random(42)
+rng.shuffle(smiles)
+smiles_random = smiles[:1000]
+
+text = "\n".join(smiles_random) + "\n"
+with open("data/n1-targets_1000_subsample.txt", "w", encoding="utf-8") as f:
+    f.write(text)
+```
+
 ## USPTO 50K
 We use the same version of USPTO 50K as in the GLN paper (https://github.com/Hanjun-Dai/GLN) with splits originally produced
 using a script from the retrosym paper (https://github.com/connorcoley/retrosim/blob/master/retrosim/data/get_data.py).
