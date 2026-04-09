@@ -1,4 +1,5 @@
 # Multi-step retrosynthesis with the SMILES-to-SMILES transformer accelerated by speculative beam search
+The code for the paper https://doi.org/10.1039/D5DD00573F. 
 
 ## Overview
 Multi-step CASP with AiZynthFinder including a single-step SMILES-to-SMILES transformer accelerated by speculative decoding.
